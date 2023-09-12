@@ -114,6 +114,7 @@ function setup(env) {
 		}
 
 		debug.namespace = namespace;
+		debug.useDate = createDebug.useDate();
 		debug.useColors = createDebug.useColors();
 		debug.color = createDebug.selectColor(namespace);
 		debug.extend = extend;

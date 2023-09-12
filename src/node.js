@@ -15,6 +15,7 @@ exports.formatArgs = formatArgs;
 exports.save = save;
 exports.load = load;
 exports.useColors = useColors;
+exports.useDate = useDate;
 exports.destroy = util.deprecate(
 	() => {},
 	'Instance method `debug.destroy()` is deprecated and no longer does anything. It will be removed in the next major version of `debug`.'
@@ -158,6 +159,12 @@ function useColors() {
 		tty.isatty(process.stderr.fd);
 }
 
+function useDate() {
+	return 'colors' in exports.inspectOpts ?
+		!Boolean(exports.inspectOpts.hideDate) :
+		Boolean(exports.inspectOpts.showDate);
+}
+
 /**
  * Adds ANSI color escape codes if enabled.
  *
@@ -165,15 +172,21 @@ function useColors() {
  */
 
 function formatArgs(args) {
-	const {namespace: name, useColors} = this;
+	const {namespace: name, useColors, useDate} = this;
 
 	if (useColors) {
 		const c = this.color;
 		const colorCode = '\u001B[3' + (c < 8 ? c : '8;5;' + c);
 		const prefix = `  ${colorCode};1m${name} \u001B[0m`;
 
-		args[0] = prefix + args[0].split('\n').join('\n' + prefix);
-		args.push(colorCode + 'm+' + module.exports.humanize(this.diff) + '\u001B[0m');
+
+		if (useDate) {
+			const coloredDate = `${colorCode}m${getDate()}\u001B[0m`;
+			args[0] = `${coloredDate}  ${colorCode};1m${name} \u001B[0m` + ' ' + args[0];
+		} else {
+			args[0] = prefix + args[0].split('\n').join('\n' + prefix);
+			args.push(colorCode + 'm+' + module.exports.humanize(this.diff) + '\u001B[0m');
+		}
 	} else {
 		args[0] = getDate() + name + ' ' + args[0];
 	}

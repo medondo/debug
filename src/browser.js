@@ -8,6 +8,7 @@ exports.formatArgs = formatArgs;
 exports.save = save;
 exports.load = load;
 exports.useColors = useColors;
+exports.useDate = () => false;
 exports.storage = localstorage();
 exports.destroy = (() => {
 	let warned = false;
